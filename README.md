@@ -32,13 +32,13 @@ To run the application inside a Docker container:
     ```sh
     docker run -d -p 5000:5000 flask-app
 
-The application will be accessible at [http://127.0.0.1:5000/].
+The application will be accessible at [http://127.0.0.1:5000/translate?word=hello&language=French].
 
 ### Example Request
 
 You can test the endpoint using Postman or your browser:
 
-- **URL:** [http://127.0.0.1:5000/word=dog]
+- **URL:** [http://127.0.0.1:5000/translate?word=hello&language=French]
 - **Method:** GET
 - **URL Params:** word=[string]
 
