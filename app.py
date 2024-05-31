@@ -2,8 +2,8 @@ from flask import Flask, jsonify, request
 import requests
 import json
 from translate import Translator
+import pycountry
 
-translator = Translator(to_lang="si")
 
 app = Flask(__name__)
 
@@ -17,8 +17,15 @@ def get_word_data(word):
         return None
     return response.json()
 
-@app.route('/word=<word>', methods=['GET'])
-def get_meaning_of_word(word):
+@app.route('/translate', methods=['GET'])
+def get_meaning_of_word():
+    word = request.args.get('word')
+    language = request.args.get('language')
+    if not (word and language):
+        return jsonify({'error': 'Missing required query parameters'}), 400
+   
+    LanguageIsoCode=pycountry.languages.get(name=language).alpha_2
+    translator = Translator(to_lang=LanguageIsoCode) 
     word_data = get_word_data(word)
     try:
         data = word_data[0]['meanings']
@@ -36,11 +43,12 @@ def get_meaning_of_word(word):
         englishMeanings.append({"similarWord": englishSimilarWord})
         print(englishMeanings[-1]['similarWord'])
         
-        sinhala = translator.translate(englishMeanings[0]['definitions'][0])
+        translatedDefiniton = translator.translate(englishMeanings[0]['definitions'][0])
         response_data = {
             "word": word,
             "english": englishMeanings,
-            "sinhala": [{'meaning': translator.translate(word)}, {'definition': sinhala}]
+            "secondaryLanguage": {"info":[{'meaning': translator.translate(word)}, {'definition': translatedDefiniton}], "LanguageIsoCode":LanguageIsoCode,
+      "language":language}
         }
     except:
         return jsonify({
